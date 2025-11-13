@@ -52,3 +52,29 @@ def risk_today(request):
     d = date.fromisoformat(request.query_params.get("date")) if "date" in request.query_params else date.today()
     score, level, explain = compute_daily_risk(request.user, d)
     return Response({"date": str(d), "score": score, "level": level, "explain": explain})
+
+from django.http import HttpResponse
+from rest_framework.decorators import api_view, permission_classes
+from .pdf import build_visit_pdf
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def visit_pdf(request):
+    pdf_bytes = build_visit_pdf(request.user)
+    resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+    resp["Content-Disposition"] = 'attachment; filename="visit_summary_30d.pdf"'
+    return resp
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .services.insights import hydration_vs_pain, lab_drift_flags
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def insights(request):
+    return Response({
+        "hydration_pain": hydration_vs_pain(request.user),
+        "lab_drift": lab_drift_flags(request.user),
+    })
+

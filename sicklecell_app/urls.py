@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.views import (PainEventViewSet, HydrationLogViewSet,
-                        LabResultViewSet, risk_today)
+                        LabResultViewSet, risk_today, visit_pdf, insights)
+from core.health import health
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
@@ -21,5 +22,8 @@ urlpatterns = [
 ]
 
 # ...
-urlpatterns += [ path("api/risk-today/", risk_today) ]
+urlpatterns += [ path("api/risk-today/", risk_today),
+                 path("api/visit-pdf/", visit_pdf),
+                 path("health/", health),
+                 path("api/insights/", insights),]
 
